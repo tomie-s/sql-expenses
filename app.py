@@ -33,6 +33,8 @@ class ExpenseApp(QWidget):
         # table width equal to the window width
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
+        self.populate_dropdown()  # Call the method to populate the dropdown with categories
+
         self.setup_layout()  # Call the method to set up the layout
 
     # Add widget to the layout (Row/Column)
@@ -66,3 +68,7 @@ class ExpenseApp(QWidget):
 
         self.setLayout(main_layout)  # Set the main layout for the window
 
+    # Function to add a new expense category for the dropdown
+    def populate_dropdown(self):
+        categories = ["Food", "Rent", "Entertainment", "Utilities", "Shopping", "Other"]
+        self.dropdown.addItems(categories)  # Add categories to the dropdown 
