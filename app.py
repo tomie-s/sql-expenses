@@ -30,6 +30,8 @@ class ExpenseApp(QWidget):
 
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(["ID", "Date", "Category", "Amount", "Description"])
+        # table width equal to the window width
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.setup_layout()  # Call the method to set up the layout
 
