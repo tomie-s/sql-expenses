@@ -40,7 +40,9 @@ class ExpenseApp(QWidget):
 
         # Connect buttons to their respective functions
         self.btn_add.clicked.connect(self.add_new_expense)
-        self.btn_delete.clicked.connect(self.delete_expense) 
+        self.btn_delete.clicked.connect(self.delete_expense)
+
+        self.apply_styles()  # Call the method to apply CSS styles
 
         self.setup_layout()  # Call the method to set up the layout
 
@@ -75,6 +77,56 @@ class ExpenseApp(QWidget):
 
         self.setLayout(main_layout)  # Set the main layout for the window
 
+    # Apply CSS styles to the widgets
+    def apply_styles(self):
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #e3e9f2;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                color: #333;
+            }
+            QLabel {
+                font-size: 16px;
+                color: #2c3e50;
+                font-weight: bold;
+                padding: 5px;
+            }
+            QLineEdit, QComboBox, QDateEdit {
+                background-color: #FFF;
+                font-size: 14px;
+                color: #333;
+                padding: 5px;
+                border: 1px solid #b0bfc6;
+                border-radius: 6px;
+            }
+            QLineEdit:focus, QComboBox:focus, QDateEdit:focus {
+                border: 1px solid #2a9d8f;
+                background-color: #f5f9fc;
+            }
+            QLineEdit:hover, QComboBox:hover, QDateEdit:hover {
+                border: 1px solid #4caf50;
+            }
+            QTableWidget {
+                background-color: #FFF;
+                alternate-background-color: #f2f7fb;
+                gridline-color: #c0c9d0;
+                selection-background-color: #4caf50;
+                selection-color: white;
+                font-size: 14px;
+                border: 1px solid #cfd9e1;
+            }
+            QPushButton {
+                background-color: #007BFF;
+                color: white;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+        """)
+
     # Function to add a new expense category for the dropdown
     def populate_dropdown(self):
         categories = ["Food", "Rent", "Entertainment",
@@ -90,7 +142,6 @@ class ExpenseApp(QWidget):
                 self.table.setItem(row, column, QTableWidgetItem(str(data)))
 
     # Function to clear the input fields after adding the expense
-
     def clear_inputs(self):
         self.date_box.setDate(QDate.currentDate())
         self.dropdown.setCurrentIndex(0)
