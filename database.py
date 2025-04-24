@@ -1,13 +1,14 @@
 # All SQL related functions
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery
 
+
 def init_db(db_name):
     database = QSqlDatabase.addDatabase("QSQLITE")
     database.setDatabaseName(db_name)
     if not database.open():
         print("Unable to open the database.")
         return False
-    
+
     query = QSqlQuery()
     query.exec("""
         CREATE TABLE IF NOT EXISTS expenses (
@@ -24,11 +25,12 @@ def init_db(db_name):
 
 def get_expenses():
     query = QSqlQuery("SELECT * FROM expenses ORDER BY date DESC")
-    
+
     expenses = []
     while query.next():
-        expenses.append([query.value(i)] for i in range(query.record().count()))
-    
+        row = [query.value(i) for i in range(5)]
+        expenses.append(row)
+
     return expenses
 
 
@@ -43,12 +45,7 @@ def add_expense(date, category, amount, description):
     query.bindValue(":amount", amount)
     query.bindValue(":description", description)
 
-    result = query.exec()
-    # Check if the query executed successfully
-    if not query.exec():
-        print("Failed to add expense:", query.lastError().text())
-    else:
-        return result
+    return query.exec()
 
 
 def delete_expense(expense_id):
@@ -56,9 +53,4 @@ def delete_expense(expense_id):
     query.prepare("DELETE FROM expenses WHERE id = :id")
     query.bindValue(":id", expense_id)
 
-    result = query.exec()
-    # Check if the query executed successfully
-    if not query.exec():
-        print("Failed to delete expense:", query.lastError().text())
-    else:
-        return result
+    return query.exec()

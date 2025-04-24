@@ -2,6 +2,7 @@
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit, QComboBox, QDateEdit, QTableWidget, QVBoxLayout, \
     QHBoxLayout, QMessageBox, QTableWidgetItem, QHeaderView
 from PyQt6.QtCore import Qt, QDate
+from database import add_expense, delete_expense, get_expenses
 
 
 # QWidget represents the main window of the application
@@ -11,6 +12,7 @@ class ExpenseApp(QWidget):
         super().__init__()  # Initialize the parent class QWidget
         self.settings()  # Call the settings method to set up the window properties
         self.init_ui()  # Call the initUI method to set up the user interface
+        self.load_table_data()
 
     def settings(self):
         self.setWindowTitle("Expense Tracker App")
@@ -29,11 +31,16 @@ class ExpenseApp(QWidget):
         self.btn_delete = QPushButton("Delete Expense")
 
         self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["ID", "Date", "Category", "Amount", "Description"])
+        self.table.setHorizontalHeaderLabels(
+            ["ID", "Date", "Category", "Amount", "Description"])
         # table width equal to the window width
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.populate_dropdown()  # Call the method to populate the dropdown with categories
+
+        # Connect buttons to their respective functions
+        self.btn_add.clicked.connect(self.add_new_expense)
+        self.btn_delete.clicked.connect(self.delete_expense) 
 
         self.setup_layout()  # Call the method to set up the layout
 
@@ -70,5 +77,61 @@ class ExpenseApp(QWidget):
 
     # Function to add a new expense category for the dropdown
     def populate_dropdown(self):
-        categories = ["Food", "Rent", "Entertainment", "Utilities", "Shopping", "Other"]
-        self.dropdown.addItems(categories)  # Add categories to the dropdown 
+        categories = ["Food", "Rent", "Entertainment",
+                      "Utilities", "Shopping", "Other"]
+        self.dropdown.addItems(categories)  # Add categories to the dropdown
+
+    # Function to display the data from DB in the table
+    def load_table_data(self):
+        expenses = get_expenses()
+        self.table.setRowCount(len(expenses))
+        for row, expense in enumerate(expenses):
+            for column, data in enumerate(expense):
+                self.table.setItem(row, column, QTableWidgetItem(str(data)))
+
+    # Function to clear the input fields after adding the expense
+
+    def clear_inputs(self):
+        self.date_box.setDate(QDate.currentDate())
+        self.dropdown.setCurrentIndex(0)
+        self.amount.clear()
+        self.description.clear()
+
+    # Function to add an expense to the database
+
+    def add_new_expense(self):
+        date = self.date_box.date().toString("yyyy-MM-dd")
+        category = self.dropdown.currentText()
+        amount = self.amount.text()
+        description = self.description.text()
+
+        if not date or not category or not amount:
+            QMessageBox.warning(self, "Input Error",
+                                "Please fill in all fields.")
+            return
+
+        if add_expense(date, category, amount, description):
+            self.load_table_data()
+            self.clear_inputs()
+        else:
+            QMessageBox.critical(self, "Error", "Failed to add expense.")
+
+    # Function to delete an expense from the database
+    def delete_expense(self):
+        selected_row = self.table.currentRow()
+        if selected_row < 0:
+            QMessageBox.warning(self, "Selection Error",
+                                "Please select an expense to delete.")
+            return
+
+        expense_id = int(self.table.item(selected_row, 0).text())
+        confirm = QMessageBox.question(
+            self, "Confirm Delete", "Are you sure you want to delete this expense?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        # If the user confirms, delete the expense
+        if confirm == QMessageBox.StandardButton.Yes and delete_expense(expense_id):
+            self.load_table_data()
+        else:
+            QMessageBox.critical(self, "Error", "Failed to delete expense.")
